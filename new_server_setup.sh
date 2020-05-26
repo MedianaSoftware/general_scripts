@@ -13,33 +13,40 @@ mkdir -p /home/mediana/$PROJECT_NAME-logs/
 cd ~
 python3 -m venv venv
 source venv/bin/activate
-pip install daphne
+pip install daphne django
 
-# Setup deployment
+# Create repository
 mkdir -p /home/mediana/$PROJECT_NAME.git
 cd /home/mediana/$PROJECT_NAME.git
 git init --bare
-chown -R mediana:mediana /home/mediana/$PROJECT_NAME.git
 
 # Create hook
+echo "Creating deployment hook"
 cd /home/mediana/$PROJECT_NAME.git/hooks
-
+wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/post-receive -O /home/mediana/$PROJECT_NAME.git/hooks/post-receive
 chmod +x post-receive
+chown -R mediana:mediana /home/mediana/$PROJECT_NAME.git
 
-echo "Please run (ignore errors): \"git remote add deploy ssh://mediana@$SERVER_NAME/home/mediana/$PROJECT_NAME.git/\ && git push deploy\""
+# Receive code
+echo "Please run \"git remote add deploy ssh://mediana@$SERVER_NAME/home/mediana/$PROJECT_NAME.git/\ && git push deploy\" in your local repository, ignore any errors"
+read IGNORE
 
 # Create daphne service
-wget https://github.com/MedianaSoftware/general_scripts/blob/master/django-daphne.service -o /etc/systemd/system/django-daphne.service
+echo "Creating daphne service"
+wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/django-daphne.service -O /etc/systemd/system/django-daphne.service
 
 systemctl daemon-reload
 systemctl enable django-daphne
+systemctl start django-daphne
 echo "Created and started daphne service"
 echo 
 
 # Sett up nginx
 echo "Setting up nginx"
 rm /etc/nginx/sites-enabled/default
-wget https://github.com/MedianaSoftware/general_scripts/blob/master/nginx-config -o /etc/nginx/sites-available/$PROJECT_NAME
+wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/nginx-config -O /etc/nginx/sites-available/$PROJECT_NAME
+sed "s/\$PROJECT_NAME/$PROJECT_NAME/g" /etc/nginx/sites-available/$PROJECT_NAME
+
 ln -s /etc/nginx/sites-available/$PROJECT_NAME /etc/nginx/sites-enabled/
 
 nginx -t
