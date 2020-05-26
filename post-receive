@@ -1,0 +1,44 @@
+#!/bin/bash
+TARGET="/home/mediana/$PROJECT_NAME"
+REPO="/home/mediana/$PROJECT_NAME.git"
+TEMP="/home/mediana/tmp"
+
+GIT_DIR="/home/mediana/$PROJECT_NAME.git"
+BRANCH=master
+LOGFILE="/home/mediana/$PROJECT_NAME-logs/deploy.log"
+
+while read oldrev newrev ref
+do
+  # only checking out the master (or whatever branch you would like to deploy)
+  if [ "$ref" = "refs/heads/$BRANCH" ];
+  then
+    echo "Ref $ref received. Deploying ${BRANCH} branch to production..."
+    echo "===== starting deploy $(date) =====" >> $LOGFILE
+
+    echo "Updating files" >> $LOGFILE
+    mkdir -p $TEMP
+    git --work-tree=$TEMP --git-dir=$GIT_DIR checkout -f $BRANCH >> $LOGFILE
+
+    cp $TARGET/$PROJECT_NAME/production.py /home/mediana
+    rm -rf $TARGET
+    mv $TEMP $TARGET
+
+    mv /home/mediana/production.py $TARGET/$PROJECT_NAME/
+
+    source /home/mediana/venv/bin/activate
+    cd /home/mediana/$PROJECT_NAME >> $LOGFILE
+
+    echo -e "nRunning pip install" >> $LOGFILE
+    pip install -r requirements.txt >> $LOGFILE
+    echo -e "nRunning manage.py migrate" >> $LOGFILE
+    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py migrate >> $LOGFILE
+    echo -e "nRunning manage.py collectstatic" >> $LOGFILE
+    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py collectstatic --noinput >> $LOGFILE
+    echo -e "nRestarting daphne" >> $LOGFILE
+    sudo systemctl restart django-daphne
+    echo "Deployment complete, logs can be found at " $LOGFILE
+    echo "Deployment complete" >> $LOGFILE
+  else
+    echo "Ref $ref received. Doing nothing: only the ${BRANCH} branch may be deployed on this server."
+  fi
+done

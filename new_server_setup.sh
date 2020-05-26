@@ -1,0 +1,54 @@
+SERVER_NAME=django.medianasoftware.nl
+PROJECT_NAME=mediana_website
+
+# add project name to environment
+echo $PROJECT_NAME >> /etc/environment
+
+apt install nginx python3-venv
+
+adduser --disabled-password --gecos "" mediana
+
+mkdir -p /home/mediana/$PROJECT_NAME
+mkdir -p /home/mediana/$PROJECT_NAME-logs/
+cd ~
+python3 -m venv venv
+source venv/bin/activate
+pip install daphne
+
+# Setup deployment
+mkdir -p /home/mediana/$PROJECT_NAME.git
+cd /home/mediana/$PROJECT_NAME.git
+git init --bare
+chown -R mediana:mediana /home/mediana/$PROJECT_NAME.git
+
+# Create hook
+cd /home/mediana/$PROJECT_NAME.git/hooks
+
+chmod +x post-receive
+
+echo "Please run (ignore errors): \"git remote add deploy ssh://mediana@$SERVER_NAME/home/mediana/$PROJECT_NAME.git/\ && git push deploy\""
+
+# Create daphne service
+wget https://github.com/MedianaSoftware/general_scripts/blob/master/django-daphne.service -o /etc/systemd/system/django-daphne.service
+
+systemctl daemon-reload
+systemctl enable django-daphne
+echo "Created and started daphne service"
+echo 
+
+# Sett up nginx
+echo "Setting up nginx"
+rm /etc/nginx/sites-enabled/default
+wget https://github.com/MedianaSoftware/general_scripts/blob/master/nginx-config -o /etc/nginx/sites-available/$PROJECT_NAME
+ln -s /etc/nginx/sites-available/$PROJECT_NAME /etc/nginx/sites-enabled/
+
+nginx -t
+
+mkdir -p "/var/www/$PROJECT_NAME/media/"
+mkdir -p "/var/www/$PROJECT_NAME/static/"
+
+echo "
+ALLOWED_HOSTS = ['$SERVER_NAME']
+DEBUG = False
+" > /home/mediana/$PROJECT_NAME/$PROJECT_NAME/production.py
+chown -R mediana:mediana  /home/mediana/$PROJECT_NAME

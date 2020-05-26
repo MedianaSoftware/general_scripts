@@ -1,0 +1,15 @@
+[Unit]
+Description=daphne server $PROJECT_NAME
+After=network.target
+
+[Service]
+User=mediana
+Group=mediana
+WorkingDirectory=/home/mediana/$PROJECT_NAME
+Environment=DJANGO_SECRET_KEY=
+Environment=DJANGO_ALLOWED_HOSTS=$SERVER_NAME
+ExecStart=/home/mediana/venv/bin/daphne -b 0.0.0.0 -p 8000 $PROJECT_NAME.asgi:application
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
