@@ -22,8 +22,11 @@ mkdir -p /home/mediana/$PROJECT_NAME/$PROJECT_NAME
 mkdir -p /home/mediana/$PROJECT_NAME-logs/
 
 echo "
+import os
+
 ALLOWED_HOSTS = ['$SERVER_NAME']
 DEBUG = False
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 STATIC_ROOT = \"/var/www/$PROJECT_NAME/static\"
 " > /home/mediana/$PROJECT_NAME/$PROJECT_NAME/production.py
 
