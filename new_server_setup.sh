@@ -87,6 +87,7 @@ systemctl enable django-daphne
 chown -R mediana:mediana /home/mediana/$PROJECT_NAME
 
 # Receive code
+echo ""
 echo "Please run the following command:"
 echo "git remote add deploy ssh://mediana@$SERVER_NAME/home/mediana/$PROJECT_NAME.git/ && git push deploy"
 echo "in your local repository."

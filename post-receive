@@ -14,7 +14,7 @@ do
   then
     echo "Ref $ref received. Deploying ${BRANCH} branch to production..."
     echo "===== starting deploy $(date) =====" >> $LOGFILE
-    echo "Deploying commit ${git rev-parse --short HEAD} from branch: ${BRANCH}" >> $LOGFILE
+    echo "Deploying commit $(git rev-parse --short HEAD) from branch: $BRANCH" >> $LOGFILE
     
     echo "Backing up database to deploy-$(date).json" >> $LOGFILE
     cd /home/mediana/$PROJECT_NAME >> $LOGFILE
