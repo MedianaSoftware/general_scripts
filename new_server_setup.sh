@@ -20,6 +20,7 @@ systemctl restart sshd
 # Setup project dirs and config 
 mkdir -p /home/mediana/$PROJECT_NAME/$PROJECT_NAME
 mkdir -p /home/mediana/$PROJECT_NAME-logs/
+mkdir -p /home/mediana/database-backups/
 
 echo "
 import os
