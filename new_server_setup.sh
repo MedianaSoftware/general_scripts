@@ -7,6 +7,12 @@ echo PROJECT_NAME=$PROJECT_NAME >> /etc/environment
 apt update
 apt install -y nginx python3-venv python3-wheel gcc python3-dev
 
+# Install certbot
+apt-get install software-properties-common
+add-apt-repository universe
+apt-get update
+apt-get install certbot python3-certbot-nginx
+
 # Setup mediana user
 adduser --disabled-password --gecos "" mediana
 echo 'mediana ALL=(ALL) NOPASSWD: ALL' | sudo EDITOR='tee -a' visudo
