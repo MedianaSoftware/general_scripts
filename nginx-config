@@ -10,6 +10,10 @@ server {
     # max upload size
     client_max_body_size 75M;
 
+    if ($host != $SERVER_NAME) {
+        return 444;
+    }
+
     # Django media
     location /media  {
         alias /var/www/$PROJECT_NAME/media/;  # your Django project's media files - amend as required
