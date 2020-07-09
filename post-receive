@@ -16,32 +16,47 @@ do
     echo "===== starting deploy $(date) =====" >> $LOGFILE
     echo "Deploying commit $(git rev-parse --short HEAD) from branch: $BRANCH" >> $LOGFILE
     
+    # backup database
     echo "Backing up database to deploy-$(date).json" >> $LOGFILE
+    source /home/mediana/venv/bin/activate
     cd /home/mediana/$PROJECT_NAME >> $LOGFILE
     env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py dumpdata -o "/home/mediana/database-backups/deploy-$(date).json" >> $LOGFILE
-    cd /home/mediana/
+    deactivate
+    ##
 
+    # Save untracked files
+    cp $TARGET/$PROJECT_NAME/production.py /home/mediana
+    ##
+
+    # Update files
     echo "Updating files" >> $LOGFILE
+    cd /home/mediana/
     mkdir -p $TEMP
     git --work-tree=$TEMP --git-dir=$GIT_DIR checkout -f $BRANCH >> $LOGFILE
 
-    cp $TARGET/$PROJECT_NAME/production.py /home/mediana
     rm -rf $TARGET
     mv $TEMP $TARGET
+    ##
 
+    # Restore untracked files
     mv /home/mediana/production.py $TARGET/$PROJECT_NAME/
+    ##
 
     source /home/mediana/venv/bin/activate
     cd /home/mediana/$PROJECT_NAME >> $LOGFILE
 
     echo -e "\nRunning pip install" >> $LOGFILE
     pip install -r requirements.txt >> $LOGFILE
+
     echo -e "\nRunning manage.py migrate" >> $LOGFILE
     env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py migrate >> $LOGFILE
+
     echo -e "\nRunning manage.py collectstatic" >> $LOGFILE
     env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py collectstatic --noinput >> $LOGFILE
+
     echo -e "\nRestarting daphne" >> $LOGFILE
     sudo systemctl restart django-daphne
+    
     echo "Deployment complete, logs can be found at " $LOGFILE
     echo "Deployment complete" >> $LOGFILE
   else
