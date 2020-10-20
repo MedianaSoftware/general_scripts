@@ -8,10 +8,10 @@ apt update
 apt install -y nginx python3-venv python3-wheel gcc python3-dev
 
 # Install certbot
-apt-get install software-properties-common
+apt-get install -y software-properties-common
 add-apt-repository universe
 apt-get update
-apt-get install certbot python3-certbot-nginx
+apt-get install -y certbot python3-certbot-nginx
 
 # Setup mediana user
 adduser --disabled-password --gecos "" mediana
