@@ -1,5 +1,7 @@
-SERVER_NAME=medianasoftware.nl
-PROJECT_NAME=mediana_website
+echo "Enter server name (eg medianasoftware.nl):"
+read SERVER_NAME                   
+echo "Enter project name (eg mediana_website)"
+read PROJECT_NAME 
 
 # add project name to environment
 echo PROJECT_NAME=$PROJECT_NAME >> /etc/environment
