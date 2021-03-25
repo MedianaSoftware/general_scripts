@@ -20,7 +20,7 @@ do
     echo "Backing up database to deploy-$(date).json" >> $LOGFILE
     source /home/mediana/venv/bin/activate
     cd /home/mediana/$PROJECT_NAME >> $LOGFILE
-    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py dumpdata -o "/home/mediana/database-backups/deploy-$(date).json" >> $LOGFILE
+    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 python manage.py dumpdata -o "/home/mediana/database-backups/deploy-$(date).json" >> $LOGFILE
     deactivate
     ##
 
@@ -49,10 +49,10 @@ do
     pip install -r requirements.txt >> $LOGFILE
 
     echo -e "\nRunning manage.py migrate" >> $LOGFILE
-    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py migrate >> $LOGFILE
+    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 python manage.py migrate >> $LOGFILE
 
     echo -e "\nRunning manage.py collectstatic" >> $LOGFILE
-    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py collectstatic --noinput >> $LOGFILE
+    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 python manage.py collectstatic --noinput >> $LOGFILE
 
     echo -e "\nRestarting daphne" >> $LOGFILE
     sudo systemctl restart django-daphne
