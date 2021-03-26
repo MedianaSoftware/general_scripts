@@ -2,6 +2,10 @@ echo "Enter server name (eg medianasoftware.nl):"
 read SERVER_NAME                   
 echo "Enter project name (eg mediana_website)"
 read PROJECT_NAME 
+echo "Should this be a postgres server? (y/n)"
+read IS_POSTGRES
+echo "Setup cerbot for HTTPS? (y/n)"
+read SETUP_CERTBOT
 
 # add project name to environment
 echo PROJECT_NAME=$PROJECT_NAME >> /etc/environment
@@ -37,6 +41,50 @@ ALLOWED_HOSTS = ['$SERVER_NAME']
 DEBUG = False
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 STATIC_ROOT = \"/var/www/$PROJECT_NAME/static\"
+
+LOG_BASE_PATH = \"/home/mediana/$PROJECT_NAME-logs/\"
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} [{levelname}] {filename}:{lineno}:{funcName} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{message}',
+            'style': '{',
+        },
+        'test': {
+            'format': '{asctime} JAD {module} {message}',
+            'datefmt': '%Y-%m-%dT%H:%M:%S',
+            'style': '{',
+        },
+        'graylog': {
+            'format': '[%(asctime)s][$(pathname)s]',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': LOG_BASE_PATH + './debug.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
 " > /home/mediana/$PROJECT_NAME/$PROJECT_NAME/production.py
 
 cd ~
@@ -89,13 +137,34 @@ chown -R mediana:mediana "/var/www/$PROJECT_NAME/static/"
 mkdir -p "/var/www/static"
 chown -R mediana:mediana "/var/www/static/"
 
+if [ $IS_POSTGRES = "y" ]
+then
+    echo "Installing postgres..."
+    wget https://github.com/MedianaSoftware/general_scripts/blob/master/setup_postgres.sh -O /home/mediana/setup_postgres.sh
+
+fi
+
 systemctl daemon-reload
 systemctl enable django-daphne
 
 chown -R mediana:mediana /home/mediana/$PROJECT_NAME
 
+echo "Dont forget to add the following to settings.py:"
+echo """
+try:
+    from .local import * 
+except ImportError:
+    try:
+        from .staging import *
+    except ImportError:
+        try:
+            from .production import *
+        except ImportError:
+            pass
+"""
+
 # Receive code
 echo ""
-echo "Please run the following command:"
+echo "Then, please run the following command:"
 echo "git remote add deploy ssh://mediana@$SERVER_NAME/home/mediana/$PROJECT_NAME.git/ && git push deploy"
 echo "in your local repository."
