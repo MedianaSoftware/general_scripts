@@ -3,7 +3,7 @@ read SERVER_NAME
 echo "Enter project name (eg mediana_website)"
 read PROJECT_NAME 
 echo "Should this be a postgres server? (y/n)"
-read IS_POSTGRES
+read SETUP_POSTGRES
 echo "Setup cerbot for HTTPS? (y/n)"
 read SETUP_CERTBOT
 
@@ -137,11 +137,18 @@ chown -R mediana:mediana "/var/www/$PROJECT_NAME/static/"
 mkdir -p "/var/www/static"
 chown -R mediana:mediana "/var/www/static/"
 
-if [ $IS_POSTGRES = "y" ]
+if [ $SETUP_POSTGRES = "y" ]
 then
     echo "Installing postgres..."
     wget https://github.com/MedianaSoftware/general_scripts/blob/master/setup_postgres.sh -O /home/mediana/setup_postgres.sh
+    bash /home/mediana/setup_postgres.sh
+fi
 
+if [ $SETUP_CERTBOT = "y" ]
+then
+    echo "Setting up certbot..."
+    wget https://github.com/MedianaSoftware/general_scripts/blob/master/setup_certbot.sh -O /home/mediana/setup_certbot.sh
+    bash /home/mediana/setup_certbot.sh
 fi
 
 systemctl daemon-reload
