@@ -55,11 +55,6 @@ LOGGING = {
             'format': '{message}',
             'style': '{',
         },
-        'test': {
-            'format': '{asctime} JAD {module} {message}',
-            'datefmt': '%Y-%m-%dT%H:%M:%S',
-            'style': '{',
-        },
         'graylog': {
             'format': '[%(asctime)s][$(pathname)s]',
         },
@@ -79,7 +74,7 @@ LOGGING = {
     },
     'loggers': {
         '': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': 'DEBUG',
         },
     },
