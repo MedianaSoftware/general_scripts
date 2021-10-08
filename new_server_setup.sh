@@ -1,11 +1,14 @@
-echo "Enter server name (eg medianasoftware.nl):"
-read SERVER_NAME                   
-echo "Enter project name (eg mediana_website)"
-read PROJECT_NAME 
-echo "Should this be a postgres server? (y/n)"
-read SETUP_POSTGRES
-echo "Setup cerbot for HTTPS? (y/n)"
-read SETUP_CERTBOT
+read -p "Enter server name (eg medianasoftware.nl): " SERVER_NAME
+SERVER_NAME=${SERVER_NAME:-medianasoftware.nl}
+
+read -p "Enter project name: " PROJECT_NAME
+PROJECT_NAME=${PROJECT_NAME:-django}
+
+read -p "Should this be a postgres server? (y/n): " SETUP_POSTGRES
+SETUP_POSTGRES=${SETUP_POSTGRES:-n}
+
+read -p "Setup cerbot for HTTPS? (y/n): " SETUP_CERTBOT
+SETUP_CERTBOT=${SETUP_CERTBOT:-n}
 
 # add project name to environment
 echo PROJECT_NAME=$PROJECT_NAME >> /etc/environment
@@ -39,7 +42,7 @@ import os
 
 ALLOWED_HOSTS = ['$SERVER_NAME']
 DEBUG = False
-SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'asjklfhaskldjfhasjklfhklasjdhf')
 STATIC_ROOT = \"/var/www/$PROJECT_NAME/static\"
 
 LOG_BASE_PATH = \"/home/mediana/$PROJECT_NAME-logs/\"
