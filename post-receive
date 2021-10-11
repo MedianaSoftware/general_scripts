@@ -33,7 +33,7 @@ do
     echo "Updating files" >> $LOGFILE
     cd /home/mediana/
     mkdir -p $TEMP
-    git --work-tree=$TEMP --git-dir=$GIT_DIR checkout -f $BRANCH >> $LOGFILE
+    git --work-tree=$TEMP --git-dir=$GIT_DIR checkout -f $ref >> $LOGFILE
 
     rm -rf $TARGET
     mv $TEMP $TARGET
