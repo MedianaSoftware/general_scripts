@@ -37,6 +37,15 @@ mkdir -p /home/mediana/$PROJECT_NAME/$PROJECT_NAME
 mkdir -p /home/mediana/$PROJECT_NAME-logs/
 mkdir -p /home/mediana/database-backups/
 
+# Setup Firewall
+apt install -y ufw
+ufw default deny
+ufw allow 443
+ufw allow 80
+ufw allow 22
+ufw enable
+
+# Setup production.py
 echo "
 import os
 
