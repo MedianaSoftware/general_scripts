@@ -1,32 +1,33 @@
 #!/bin/bash
 TARGET="/home/mediana/$PROJECT_NAME"
-REPO="/home/mediana/$PROJECT_NAME.git"
+GIT_DIR="/home/mediana/$PROJECT_NAME.git"
 TEMP="/home/mediana/tmp"
 
-GIT_DIR="/home/mediana/$PROJECT_NAME.git"
-BRANCH=master
+BRANCH="develop"
 LOGFILE="/home/mediana/$PROJECT_NAME-logs/deploy.log"
+
+print_double() {
+    echo -e $1;
+    echo -e $1 >> $LOGFILE
+}
 
 while read oldrev newrev ref
 do
   # only checking out the master (or whatever branch you would like to deploy)
   if [ "$ref" = "refs/heads/$BRANCH" ];
   then
-    echo "Ref $ref received. Deploying ${BRANCH} branch to production..."
-    echo "===== starting deploy $(date) =====" >> $LOGFILE
-    echo "Deploying commit $(git rev-parse --short HEAD) from branch: $BRANCH" >> $LOGFILE
-    
-    # backup database
-    echo "Backing up database to deploy-$(date).json" >> $LOGFILE
-    source /home/mediana/venv/bin/activate
+    print_double "Ref $ref received. Deploying ${BRANCH} branch to production..."
+    print_double "===== starting deploy $(date) ====="
+    print_double "Deploying commit $(git rev-parse --short HEAD) from branch: $BRANCH"
+
+    print_double "Backing up database to deploy-$(date).json"
     cd /home/mediana/$PROJECT_NAME >> $LOGFILE
-    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 python manage.py dumpdata -o "/home/mediana/database-backups/deploy-$(date).json" >> $LOGFILE
-    deactivate
-    ##
+    source /home/mediana/venv/bin/activate
+#    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py dumpdata -o "/home/mediana/database-backups/deploy-$(date).json" >> $LOGFILE
+    #PGPASSWORD="a9NgU43pgNVBzoDvXme4" pg_dump -U jaduser -W -F c jad > "/home/mediana/database-backups/deploy-$(date).tar"
 
     # Save untracked files
     cp $TARGET/$PROJECT_NAME/production.py /home/mediana
-    ##
 
     # Update files
     echo "Updating files" >> $LOGFILE
@@ -45,6 +46,11 @@ do
     source /home/mediana/venv/bin/activate
     cd /home/mediana/$PROJECT_NAME >> $LOGFILE
 
+    print_double "\nrunning npm install"
+    npm install
+    print_double "\nrunning npm build"
+    npm run build
+
     echo -e "\nRunning pip install" >> $LOGFILE
     pip install -r requirements.txt >> $LOGFILE
 
@@ -55,7 +61,7 @@ do
     env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 python manage.py collectstatic --noinput >> $LOGFILE
 
     echo -e "\nRestarting daphne" >> $LOGFILE
-    sudo systemctl restart django-daphne
+    sudo systemctl restart django-daphne celery celerybeat
     
     echo "Deployment complete, logs can be found at " $LOGFILE
     echo "Deployment complete" >> $LOGFILE
