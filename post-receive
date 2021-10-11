@@ -27,7 +27,7 @@ do
     #PGPASSWORD="a9NgU43pgNVBzoDvXme4" pg_dump -U jaduser -W -F c jad > "/home/mediana/database-backups/deploy-$(date).tar"
 
     # Save untracked files
-    cp $TARGET/$PROJECT_NAME/production.py /home/mediana
+    cp $TARGET/jad/production.py /home/mediana
 
     # Update files
     echo "Updating files" >> $LOGFILE
