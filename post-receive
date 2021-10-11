@@ -40,7 +40,7 @@ do
     ##
 
     # Restore untracked files
-    mv /home/mediana/production.py $TARGET/$PROJECT_NAME/
+    mv /home/mediana/production.py $TARGET/jad/
     ##
 
     source /home/mediana/venv/bin/activate
