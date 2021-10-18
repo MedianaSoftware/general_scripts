@@ -117,6 +117,7 @@ sed -i "s/\$SERVER_NAME/$SERVER_NAME/g" /etc/systemd/system/daphne.service
 echo "Created daphne service"
 echo 
 
+mkdir -p /etc/conf.d/
 echo "Creating celery service"
 wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celery.service -O /etc/systemd/system/celery.service
 wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celery -O /etc/conf.d/celery
