@@ -164,7 +164,7 @@ then
 fi
 
 systemctl daemon-reload
-systemctl enable daphne
+systemctl enable daphne celery celerybeat
 
 chown -R mediana:mediana /home/mediana/$PROJECT_NAME
 
