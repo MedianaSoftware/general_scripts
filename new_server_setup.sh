@@ -14,7 +14,7 @@ SETUP_CERTBOT=${SETUP_CERTBOT:-n}
 echo PROJECT_NAME=$PROJECT_NAME >> /etc/environment
 
 apt update
-apt install -y nginx python3-venv python3-wheel gcc python3-dev
+apt install -y nginx python3-venv python3-wheel gcc python3-dev redis-server
 
 # Setup mediana user
 adduser --disabled-password --gecos "" mediana
@@ -166,7 +166,11 @@ then
 fi
 
 systemctl daemon-reload
-systemctl enable daphne celery celerybeat
+systemctl enable daphne
+systemctl enable celery
+systemctl enable celerybeat
+systemctl enable redis-server
+
 
 chown -R mediana:mediana /home/mediana/$PROJECT_NAME
 
