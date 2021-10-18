@@ -108,13 +108,23 @@ wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/po
 chmod +x post-receive
 chown -R mediana:mediana /home/mediana/
 
-# Create daphne service
+# Create services
 echo "Creating daphne service"
 wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/daphne.service -O /etc/systemd/system/daphne.service
 sed -i "s/\$DJANGO_SECRET/$DJANGO_SECRET/g" /etc/systemd/system/daphne.service
 sed -i "s/\$PROJECT_NAME/$PROJECT_NAME/g" /etc/systemd/system/daphne.service
 sed -i "s/\$SERVER_NAME/$SERVER_NAME/g" /etc/systemd/system/daphne.service
 echo "Created daphne service"
+echo 
+
+echo "Creating celery service"
+wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celery.service -O /etc/systemd/system/celery.service
+wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celery -O /etc/conf.d/celery
+echo 
+
+echo "Creating celerybeat service"
+wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celerybeat.service -O /etc/systemd/system/celerybeat.service
+wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celerybeat -O /etc/conf.d/celerybeat
 echo 
 
 # Set up nginx
