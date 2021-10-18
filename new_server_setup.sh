@@ -118,6 +118,8 @@ echo "Created daphne service"
 echo 
 
 mkdir -p /etc/conf.d/
+mkdir -p /var/log/celery
+chown mediana:mediana /var/log/celery
 echo "Creating celery service"
 wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celery.service -O /etc/systemd/system/celery.service
 wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celery -O /etc/conf.d/celery
