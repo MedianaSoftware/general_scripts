@@ -2,7 +2,7 @@ read -p "Enter server name (eg medianasoftware.nl): " SERVER_NAME
 SERVER_NAME=${SERVER_NAME:-medianasoftware.nl}
 
 read -p "Enter project name: " PROJECT_NAME
-PROJECT_NAME=${PROJECT_NAME:-django}
+PROJECT_NAME=${PROJECT_NAME:jad}
 
 read -p "Should this be a postgres server? (y/n): " SETUP_POSTGRES
 SETUP_POSTGRES=${SETUP_POSTGRES:-n}
@@ -119,7 +119,9 @@ echo
 
 mkdir -p /etc/conf.d/
 mkdir -p /var/log/celery
+mkdir -p /var/log/celerybeat
 chown mediana:mediana /var/log/celery
+chown mediana:mediana /var/log/celerybeat
 echo "Creating celery service"
 wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celery.service -O /etc/systemd/system/celery.service
 wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/celery -O /etc/conf.d/celery
@@ -170,7 +172,6 @@ systemctl enable daphne
 systemctl enable celery
 systemctl enable celerybeat
 systemctl enable redis-server
-
 
 chown -R mediana:mediana /home/mediana/$PROJECT_NAME
 
