@@ -1,0 +1,19 @@
+[Unit]
+Description=Celery Beat Service
+After=network.target redis-server.service celery.service daphne.service
+Requires=redis-server.service celery.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+#EnvironmentFile=/etc/conf.d/celerybeat
+RuntimeDirectory=celerybeat
+WorkingDirectory=/home/ubuntu/jad
+ExecStart=/home/ubuntu/venv/bin/celery -A jad beat \
+    --pidfile=/var/run/celerybeat/1.pid --logfile=/var/log/celerybeat/info.log \
+    --loglevel=INFO -S django
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
