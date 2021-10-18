@@ -110,10 +110,10 @@ chown -R mediana:mediana /home/mediana/
 
 # Create daphne service
 echo "Creating daphne service"
-wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/django-daphne.service -O /etc/systemd/system/django-daphne.service
-sed -i "s/\$DJANGO_SECRET/$DJANGO_SECRET/g" /etc/systemd/system/django-daphne.service
-sed -i "s/\$PROJECT_NAME/$PROJECT_NAME/g" /etc/systemd/system/django-daphne.service
-sed -i "s/\$SERVER_NAME/$SERVER_NAME/g" /etc/systemd/system/django-daphne.service
+wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/daphne.service -O /etc/systemd/system/daphne.service
+sed -i "s/\$DJANGO_SECRET/$DJANGO_SECRET/g" /etc/systemd/system/daphne.service
+sed -i "s/\$PROJECT_NAME/$PROJECT_NAME/g" /etc/systemd/system/daphne.service
+sed -i "s/\$SERVER_NAME/$SERVER_NAME/g" /etc/systemd/system/daphne.service
 echo "Created daphne service"
 echo 
 
@@ -153,7 +153,7 @@ then
 fi
 
 systemctl daemon-reload
-systemctl enable django-daphne
+systemctl enable daphne
 
 chown -R mediana:mediana /home/mediana/$PROJECT_NAME
 
