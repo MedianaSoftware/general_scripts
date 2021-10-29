@@ -160,7 +160,7 @@ fi
 if [ $SETUP_CERTBOT = "y" ]
 then
     echo "Setting up certbot..."
-    wget https://github.com/MedianaSoftware/general_scripts/blob/master/setup_certbot.sh -O /home/mediana/setup_certbot.sh
+    wget https://raw.githubusercontent.com/MedianaSoftware/general_scripts/master/setup_certbot.sh -O /home/mediana/setup_certbot.sh
     bash /home/mediana/setup_certbot.sh
 fi
 
