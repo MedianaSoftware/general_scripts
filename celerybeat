@@ -1,5 +1,5 @@
 # Absolute or relative path to the 'celery' command:
-CELERY_BIN="/home/ubuntu/venv/bin/celery"
+CELERY_BIN="/home/mediana/venv/bin/celery"
 #CELERY_BIN="/virtualenvs/def/bin/celery"
 
 # App instance to use
@@ -9,7 +9,7 @@ CELERY_BIN="/home/ubuntu/venv/bin/celery"
 CELERY_APP="jad.celery:app"
 
 # Where to chdir at start.
-CELERYD_CHDIR="/home/ubuntu/jad"
+CELERYD_CHDIR="/home/mediana/jad"
 
 # Extra command-line arguments to the worker
 #CELERYD_OPTS="--time-limit=300 --concurrency=8"
