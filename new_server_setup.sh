@@ -61,9 +61,6 @@ LOGGING = {
             'format': '{message}',
             'style': '{',
         },
-        'graylog': {
-            'format': '[%(asctime)s][$(pathname)s]',
-        },
     },
     'handlers': {
         'file': {
