@@ -10,7 +10,7 @@ Group=mediana
 #EnvironmentFile=/etc/conf.d/celerybeat
 RuntimeDirectory=celerybeat
 WorkingDirectory=/home/mediana/jad
-ExecStart=/home/ubuntu/venv/bin/celery -A jad beat \
+ExecStart=/home/mediana/venv/bin/celery -A jad beat \
     --pidfile=/var/run/celerybeat/1.pid --logfile=/var/log/celerybeat/info.log \
     --loglevel=INFO -S django
 Restart=always
