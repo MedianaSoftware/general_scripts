@@ -7,59 +7,62 @@ GIT_DIR="/home/mediana/$PROJECT_NAME.git"
 BRANCH=master
 LOGFILE="/home/mediana/$PROJECT_NAME-logs/deploy.log"
 
+print_double() {
+    echo -e $1;
+    echo -e $1 >> $LOGFILE
+}
+
 while read oldrev newrev ref
 do
-  # only checking out the master (or whatever branch you would like to deploy)
-  if [ "$ref" = "refs/heads/$BRANCH" ];
-  then
-    echo "Ref $ref received. Deploying ${BRANCH} branch to production..."
-    echo "===== starting deploy $(date) =====" >> $LOGFILE
-    echo "Deploying commit $(git rev-parse --short HEAD) from branch: $BRANCH" >> $LOGFILE
-    
-    # backup database
-    echo "Backing up database to deploy-$(date).json" >> $LOGFILE
-    source /home/mediana/venv/bin/activate
-    cd /home/mediana/$PROJECT_NAME >> $LOGFILE
-    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 python manage.py dumpdata -o "/home/mediana/database-backups/deploy-$(date).json" >> $LOGFILE
-    deactivate
-    ##
+  print_double "Ref $ref received. Deploying ${BRANCH} branch to production..."
+  print_double "===== starting deploy $(date) ====="
+  print_double "Deploying commit $(git rev-parse --short HEAD) from branch: $BRANCH"
 
-    # Save untracked files
-    cp $TARGET/$PROJECT_NAME/production.py /home/mediana
-    ##
+  print_double "Stopping Services"
+  sudo systemctl stop daphne celery celerybeat
 
-    # Update files
-    echo "Updating files" >> $LOGFILE
-    cd /home/mediana/
-    mkdir -p $TEMP
-    git --work-tree=$TEMP --git-dir=$GIT_DIR checkout -f $BRANCH >> $LOGFILE
+  # backup database
+  print_double "Backing up database to deploy-$(date).json"
+  cd /home/mediana/$PROJECT_NAME >> $LOGFILE
+  #pg_dump -U jaduser -W -w -F c jad > /home/mediana/database-backups/deploy-$(date).zip
 
-    rm -rf $TARGET
-    mv $TEMP $TARGET
-    ##
+  cd /home/mediana/
 
-    # Restore untracked files
-    mv /home/mediana/production.py $TARGET/$PROJECT_NAME/
-    ##
 
-    source /home/mediana/venv/bin/activate
-    cd /home/mediana/$PROJECT_NAME >> $LOGFILE
+  # Save untracked files
+  cp $TARGET/$PROJECT_NAME/production.py /home/mediana
 
-    echo -e "\nRunning pip install" >> $LOGFILE
-    pip install -r requirements.txt >> $LOGFILE
+  # Update files
+  print_double "Updating files"
+  mkdir -p $TEMP
+  git --work-tree=$TEMP --git-dir=$GIT_DIR checkout -f $BRANCH >> $LOGFILE
 
-    echo -e "\nRunning manage.py migrate" >> $LOGFILE
-    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 python manage.py migrate >> $LOGFILE
+  rm -rf $TARGET
+  mv $TEMP $TARGET
+  ##
+  
+  # Restore untracked files
+  mv /home/mediana/production.py $TARGET/$PROJECT_NAME/
+ 
+#    source /home/ubuntu/venv/bin/activate
+  cd /home/mediana/$PROJECT_NAME >> $LOGFILE
 
-    echo -e "\nRunning manage.py collectstatic" >> $LOGFILE
-    env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 python manage.py collectstatic --noinput >> $LOGFILE
+  print_double "\nrunning npm install"
+  npm install
+  print_double "\nrunning npm build"
+  npm run build
+  
+  source /home/mediana/venv/bin/activate
+  print_double "\nRunning pip install"
+  pip install -r requirements.txt >> $LOGFILE
+  print_double "\nRunning manage.py migrate"
+  env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py migrate >> $LOGFILE
+  print_double "\nRunning manage.py collectstatic"
+  env DJANGO_SECRET_KEY=none DJANGO_ALLOWED_HOSTS=127.0.0.1 ./manage.py collectstatic --noinput >> $LOGFILE
 
-    echo -e "\nRestarting daphne" >> $LOGFILE
-    sudo systemctl restart django-daphne
-    
-    echo "Deployment complete, logs can be found at " $LOGFILE
-    echo "Deployment complete" >> $LOGFILE
-  else
-    echo "Ref $ref received. Doing nothing: only the ${BRANCH} branch may be deployed on this server."
-  fi
+  print_double "\nRestarting services"
+  sudo systemctl restart daphne celery celerybeat
+
+  echo "Deployment complete, logs can be found at " $LOGFILE
+  print_double "Deployment complete"
 done
