@@ -22,12 +22,11 @@ do
   sudo systemctl stop daphne celery celerybeat
 
   # backup database
-  print_double "Backing up database to deploy-$(date).json"
-  cd /home/mediana/$PROJECT_NAME >> $LOGFILE
-  #pg_dump -U jaduser -W -w -F c jad > /home/mediana/database-backups/deploy-$(date).zip
+  # print_double "Backing up database to deploy-$(date).json"
+  # cd /home/mediana/$PROJECT_NAME >> $LOGFILE
+  # pg_dump -U jaduser -W -w -F c jad > /home/mediana/database-backups/deploy-$(date).zip
 
   cd /home/mediana/
-
 
   # Save untracked files
   cp $TARGET/$PROJECT_NAME/production.py /home/mediana
